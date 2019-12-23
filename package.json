@@ -1,0 +1,28 @@
+{
+  "name": "virtcrud",
+  "version": "1.0.0",
+  "description": "Create, read, update, and delete virtual environments across multiple providers.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ottomatica/virtcrud.git"
+  },
+  "keywords": [
+    "virtual",
+    "docker"
+  ],
+  "author": "ottomatica",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ottomatica/virtcrud/issues"
+  },
+  "homepage": "https://github.com/ottomatica/virtcrud#readme",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "lookpath": "^1.0.4",
+    "mustache": "^3.2.0"
+  }
+}
