@@ -5,7 +5,7 @@
         <type>hvm</type>
         <kernel>{{ kernel }}</kernel>
         <initrd>{{ initrd }}</initrd>
-        <cmdline>append modules=loop,squashfs,sd-mod,usb-storage quiet console=tty0 console=ttyS0,115200</cmdline>
+        <cmdline>append modules=loop,squashfs,sd-mod,usb-storage mitigations=off quiet console=tty0 console=ttyS0,115200</cmdline>
         <boot dev='hd'/>
     </os>
     <cpu mode='host-model' check='partial'>
@@ -38,8 +38,8 @@
     <qemu:commandline>
         <!-- forward ssh -->
         <qemu:arg value='-netdev' />
-        <qemu:arg value='user,id=eth0,hostfwd=tcp::{{ ssh_port }}-:22'/>
+        <qemu:arg value='user,id=en0,hostfwd=tcp::{{ ssh_port }}-:22'/>
         <qemu:arg value='-device'/>
-        <qemu:arg value='virtio-net,netdev=eth0'/>
+        <qemu:arg value='virtio-net,netdev=en0'/>
     </qemu:commandline>
 </domain>
