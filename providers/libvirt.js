@@ -6,13 +6,13 @@ const mustache = require('mustache');
 const fs = require('fs');
 const child = require('child_process');
 
-const privateKey = path.join('/Users/cjparnin/.slim', 'baker_rsa');
+
 
 
 class Qemu {
 
     /**
-     * Construct a new virtcrud instance.
+     * Construct a new libvirt instance.
      *
      * @param {Object} [options]                 Options object.
      */
@@ -23,7 +23,12 @@ class Qemu {
             syncs: [],
             disk: false,
             verbose: true,
-            ssh_port: 2022 // auto-find an available port
+            // We will use provided privateKey or default to null.
+            privateKey: null,
+            ssh_port: 2022, // auto-find an available port if empty
+            // Instead of guessing from `os.networkInterfaces()`, will assume this mostly works.
+            ethInterface: process.platform == 'darwin' ? 'en0' : 'eth0',
+            domainType : process.platform === 'linux' ? 'kvm' : 'qemu'
         };
     }
 
@@ -44,18 +49,22 @@ class Qemu {
         let sshPort = this.defaultOptions.ssh_port || await this.findAvailablePort();
 
         let args = {
+            domain_type: this.defaultOptions.domainType,
             name,
             cpus: options.cpus || this.defaultOptions.cpus,
             mem: options.mem || this.defaultOptions.mem,
             syncs,
             kernel: path.join( image, 'vmlinuz'),
             initrd: path.join( image, 'initrd'),
-            ssh_port: options.sshPort || sshPort
+            ssh_port: options.sshPort || sshPort,
+            eth_interface: options.ethInterface || this.defaultOptions.ethInterface
         };
 
 
         let xml = (fs.readFileSync(path.join( path.dirname( require.main.filename ), 'providers', 'scripts', 'kvm.xml.mustache'))).toString();
         let render = mustache.render(xml, args);
+
+        // TODO: Find home for output.
         let output = path.join(`${name}.xml`);
 
         fs.writeFileSync(output, render);
@@ -63,7 +72,9 @@ class Qemu {
         await this.exec(`create ${output}`, true);
 
         let sshInfo = await this.getSSHConfig(name);
-        console.log(`ssh -i ${sshInfo.private_key} ${sshInfo.user}@${sshInfo.hostname} -p ${sshInfo.port} -o StrictHostKeyChecking=no`);
+        let sshKey = options.privateKey || options.defaultOptions.privateKey;
+
+        console.log(`ssh -i ${sshKey} ${sshInfo.user}@${sshInfo.hostname} -p ${sshInfo.port} -o StrictHostKeyChecking=no`);
     }
 
     async exec(cmd, verbose=false) {
@@ -75,9 +86,10 @@ class Qemu {
     async getSSHConfig(name) {
         let port = await this.getSSHPort(name);
 
-        return {user: 'root', port: port, host: name, hostname: '127.0.0.1', private_key: privateKey};
+        return {user: 'root', port: port, host: name, hostname: '127.0.0.1', private_key: this.defaultOptions.privateKey};
     }
 
+    // Recover forwarding port assigned for ssh to instance.
     async getSSHPort(name) {
         let re = /^.+hostfwd=tcp::(\d+)-:22.+$/gm;
         let xml = await this.exec(`dumpxml ${name}`);

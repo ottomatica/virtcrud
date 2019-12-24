@@ -10,7 +10,11 @@ const virtcrud = require('./index');
         return;
     }
 
-    await qemu.create('test-qemu', {image: '/Users/cjparnin/.slim/registry/alpine3.8-simple/'})
+    await qemu.create('test-qemu', 
+    {
+        image: '/Users/cjparnin/.slim/registry/alpine3.8-simple/', 
+        privateKey: '/Users/cjparnin/.slim/baker_rsa'
+    });
 
 
     // virtcrud.create('baker', id, options);

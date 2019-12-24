@@ -1,4 +1,4 @@
-<domain type='qemu' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+<domain type='{{domain_type}}' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
     <name>{{ name }}</name>
     <title>slim</title>
     <os>
@@ -38,8 +38,8 @@
     <qemu:commandline>
         <!-- forward ssh -->
         <qemu:arg value='-netdev' />
-        <qemu:arg value='user,id=en0,hostfwd=tcp::{{ ssh_port }}-:22'/>
+        <qemu:arg value='user,id={{eth_interface}},hostfwd=tcp::{{ ssh_port }}-:22'/>
         <qemu:arg value='-device'/>
-        <qemu:arg value='virtio-net,netdev=en0'/>
+        <qemu:arg value='virtio-net,netdev={{eth_interface}}'/>
     </qemu:commandline>
 </domain>

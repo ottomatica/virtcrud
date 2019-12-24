@@ -1,5 +1,5 @@
 
-const Qemu = require('./providers/Qemu');
+const Qemu = require('./providers/libvirt');
 
 
 /**
