@@ -61,7 +61,7 @@ class Qemu {
         };
 
 
-        let xml = (fs.readFileSync(path.join( path.dirname( require.main.filename ), 'providers', 'scripts', 'kvm.xml.mustache'))).toString();
+        let xml = (fs.readFileSync(path.join( __dirname, 'scripts', 'kvm.xml.mustache'))).toString();
         let render = mustache.render(xml, args);
 
         // TODO: Find home for output.
