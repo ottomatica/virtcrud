@@ -1,5 +1,6 @@
 
 const Qemu = require('./providers/libvirt');
+const VirtualBox = require('./providers/virtualbox/virtualbox')
 
 
 /**
@@ -21,6 +22,8 @@ class virtcrud {
         switch(type) {
             case 'qemu':
                 return new Qemu();
+            case 'vbox':
+                return new VirtualBox();
         }
     }
 

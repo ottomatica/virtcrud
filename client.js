@@ -3,19 +3,31 @@ const virtcrud = require('./index');
 
 (async () => {
 
-    let qemu = await virtcrud.getProvider('qemu');
+    // let qemu = await virtcrud.getProvider('qemu');
     
-    if( !await qemu.requirements() )
+    // if( !await qemu.requirements() )
+    // {
+    //     return;
+    // }
+
+    // await qemu.create('test-qemu', 
+    // {
+    //     image: '/Users/cjparnin/.slim/registry/alpine3.8-simple/', 
+    //     privateKey: '/Users/cjparnin/.slim/baker_rsa'
+    // });
+
+    let vbox = await virtcrud.getProvider('vbox');
+
+    if( !await vbox.requirements() )
     {
         return;
     }
 
-    await qemu.create('test-qemu', 
-    {
-        image: '/Users/cjparnin/.slim/registry/alpine3.8-simple/', 
-        privateKey: '/Users/cjparnin/.slim/baker_rsa'
+    vbox.privateKey = 'C:/Users/chris/.baker/baker_rsa';
+    await vbox.create('test-vbox', 
+    {   
+        iso: 'C:/Users/chris/.bakerx/.persist/images/alpine3.8-simple/vbox.iso' 
     });
-
 
     // virtcrud.create('baker', id, options);
     // virtcrud.create('vagrant', id, options);
