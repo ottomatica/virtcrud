@@ -12,7 +12,7 @@ class Env {
     {
         if( process.platform === 'win32' )
         {
-            return getDefaultInterface();
+            return this.getDefaultInterface();
         }
         else if( process.platform === 'darwin' )
         {
