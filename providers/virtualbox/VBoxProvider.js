@@ -52,7 +52,7 @@ class VBoxProvider {
         await execute("modifyvm", `${name} --nic1 nat`, verbose);
         await execute("modifyvm", `${name} --nictype1 virtio`, verbose);
 
-        await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${env.defaultNetworkInterface()}"`, verbose);
+        await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${await env.defaultNetworkInterface()}"`, verbose);
         await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
         
         // port forwarding

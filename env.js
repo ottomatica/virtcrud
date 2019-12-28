@@ -8,11 +8,11 @@ class Env {
     constructor() {
     }
 
-    defaultNetworkInterface()
+    async defaultNetworkInterface()
     {
         if( process.platform === 'win32' )
         {
-            return this.getDefaultInterface();
+            return await this.getDefaultInterface();
         }
         else if( process.platform === 'darwin' )
         {
@@ -24,13 +24,14 @@ class Env {
         }
     }
 
-    getDefaultInterface() {
+    async getDefaultInterface() {
         const si = require('systeminformation');
             
-        for( let interface of si.networkInterfaces() )
+        let interfaces = await si.networkInterfaces();
+        for( var iFace of interfaces )
         {
-            if( interface.virtual == false && interface.internal == false && interface.ip4 ){
-                return interface.ifaceName;
+            if( iFace.virtual == false && iFace.internal == false && iFace.ip4 ){
+                return iFace.ifaceName;
             }                
         }
         return "Not Found";
