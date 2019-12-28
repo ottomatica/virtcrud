@@ -25,7 +25,8 @@ class Env {
     }
 
     getDefaultInterface() {
-        for (var devName in os.networkInterfaces()) {
+        var interfaces = os.networkInterfaces();
+        for (var devName in interfaces) {
             var iface = interfaces[devName];
         
             for (var i = 0; i < iface.length; i++) {
