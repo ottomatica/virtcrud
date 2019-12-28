@@ -17,6 +17,8 @@ const VBexe = process.platform === 'win32' ? '"C:\\Program Files\\Oracle\\Virtua
 
 const isPortAvailable = require('is-port-available');
 
+const env = require('../../env');
+
 class VBoxProvider {
 
     /**
@@ -50,7 +52,7 @@ class VBoxProvider {
         await execute("modifyvm", `${name} --nic1 nat`, verbose);
         await execute("modifyvm", `${name} --nictype1 virtio`, verbose);
 
-        await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 bridge0`, verbose);
+        await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${env.defaultNetworkInterface()}"`, verbose);
         await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
         
         // port forwarding
