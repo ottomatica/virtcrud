@@ -12,7 +12,7 @@ class Env {
     {
         if( process.platform === 'win32' )
         {
-            return 'Local Area Connection';
+            return getDefaultInterface();
         }
         else if( process.platform === 'darwin' )
         {
@@ -23,6 +23,19 @@ class Env {
             return 'eth0'
         }
     }
+
+    getDefaultInterface() {
+        for (var devName in os.networkInterfaces()) {
+            var iface = interfaces[devName];
+        
+            for (var i = 0; i < iface.length; i++) {
+              var alias = iface[i];
+              if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal)
+                //return alias.address;
+                return devName;
+            }
+          }
+      }
 }
 
 module.exports = new Env();
