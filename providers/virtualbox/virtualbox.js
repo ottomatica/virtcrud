@@ -99,6 +99,7 @@ class VirtualBox {
             micro: true,
             attach_iso: options.iso,
             quickBoot: true,
+            bridged: true,
             cpus: options.cpus || this.defaultOptions.cpus,
             mem: options.mem || this.defaultOptions.mem,
             syncs: options.syncs || this.defaultOptions.syncs,
