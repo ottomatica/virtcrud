@@ -25,17 +25,15 @@ class Env {
     }
 
     getDefaultInterface() {
-        var interfaces = os.networkInterfaces();
-        for (var devName in interfaces) {
-            var iface = interfaces[devName];
-        
-            for (var i = 0; i < iface.length; i++) {
-              var alias = iface[i];
-              if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal)
-                //return alias.address;
-                return devName;
-            }
-          }
+        const si = require('systeminformation');
+            
+        for( let interface of si.networkInterfaces() )
+        {
+            if( interface.virtual == false && interface.internal == false && interface.ip4 ){
+                return interface.ifaceName;
+            }                
+        }
+        return "Not Found";
       }
 }
 
