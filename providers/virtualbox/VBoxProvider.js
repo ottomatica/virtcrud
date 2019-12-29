@@ -17,6 +17,8 @@ const VBexe = process.platform === 'win32' ? '"C:\\Program Files\\Oracle\\Virtua
 
 const isPortAvailable = require('is-port-available');
 
+const env = require('../../env');
+
 class VBoxProvider {
 
     /**
@@ -38,7 +40,7 @@ class VBoxProvider {
         return ipUtil.cidrSubnet(networkAddress + '/26').firstAddress;
     }
 
-    async micro(name, cpus, mem, iso, ssh_port, sshKeyPath, syncs, disk, verbose) {
+    async micro(name, cpus, mem, iso, bridged, ssh_port, sshKeyPath, syncs, disk, verbose) {
         await execute("createvm", `--name "${name}" --register`, verbose);
         await execute("modifyvm", `"${name}" --memory ${mem} --cpus ${cpus}`, verbose);
         await execute("storagectl", `"${name}" --name IDE --add ide`, verbose);
@@ -49,6 +51,9 @@ class VBoxProvider {
         // NIC1 =======
         await execute("modifyvm", `${name} --nic1 nat`, verbose);
         await execute("modifyvm", `${name} --nictype1 virtio`, verbose);
+
+        await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${await env.defaultNetworkInterface()}"`, verbose);
+        await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
         
         // port forwarding
         await execute("modifyvm", `${name} --natpf1 "guestssh,tcp,,${ssh_port},,22"`, verbose);

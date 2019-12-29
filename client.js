@@ -26,7 +26,8 @@ const virtcrud = require('./index');
     vbox.privateKey = 'C:/Users/chris/.baker/baker_rsa';
     await vbox.create('test-vbox', 
     {   
-        iso: 'C:/Users/chris/.bakerx/.persist/images/alpine3.8-simple/vbox.iso' 
+        iso: 'C:/Users/chris/.bakerx/.persist/images/alpine3.8-simple/vbox.iso',
+        bridged: true
     });
 
     // virtcrud.create('baker', id, options);
