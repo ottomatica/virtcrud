@@ -10,17 +10,13 @@ class Env {
 
     async defaultNetworkInterface()
     {
-        if( process.platform === 'win32' )
+        if( process.platform === 'win32' || process.platform === 'linux' )
         {
             return await this.getDefaultInterface();
         }
         else if( process.platform === 'darwin' )
         {
             return 'en0';
-        }
-        else
-        {
-            return 'eth0'
         }
     }
 
