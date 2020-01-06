@@ -1,6 +1,6 @@
 const { lookpath } = require('lookpath');
 
-
+const slash = require('slash');
 const fs = require('fs-extra');
 //const ssh = require('ssh2-client');
 const path = require('path');
@@ -115,7 +115,7 @@ class VirtualBox {
         }
 
         let sshInfo = await this.getSSHConfig(name);
-        console.log(`ssh -i ${sshInfo.private_key} ${sshInfo.user}@${sshInfo.hostname} -p ${sshInfo.port} -o StrictHostKeyChecking=no`)
+        console.log(`ssh -i ${slash(sshInfo.private_key)} ${sshInfo.user}@${sshInfo.hostname} -p ${sshInfo.port} -o StrictHostKeyChecking=no`)
     }
 
 

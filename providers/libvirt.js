@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const path = require('path');
 const mustache = require('mustache');
 const fs = require('fs');
+const slash = require('slash');
 const child = require('child_process');
 
 
@@ -74,7 +75,7 @@ class Qemu {
         let sshInfo = await this.getSSHConfig(name);
         let sshKey = options.privateKey || options.defaultOptions.privateKey;
 
-        console.log(`ssh -i ${sshKey} ${sshInfo.user}@${sshInfo.hostname} -p ${sshInfo.port} -o StrictHostKeyChecking=no`);
+        console.log(`ssh -i ${slash(sshKey)} ${sshInfo.user}@${sshInfo.hostname} -p ${sshInfo.port} -o StrictHostKeyChecking=no`);
     }
 
     async exec(cmd, verbose=false) {
