@@ -32,50 +32,13 @@ module.exports = async function (options = {}) {
 
     if(options.micro) {
         try {
-            await provider.micro(options.vmname, options.cpus, options.mem, options.attach_iso, options.bridged, options.ssh_port, path.join(__dirname,'config/resources/baker_rsa'), options.syncs, options.disk, options.verbose);
+            await provider.micro(options.vmname, options.cpus, options.mem, options.attach_iso || options.ovf, options.bridged, options.ssh_port, path.join(__dirname,'config/resources/baker_rsa'), options.syncs, options.disk, options.verbose);
        } catch (error) {
             console.error('=> exec error:', error);
         }
     }
 
-    if(options.provision) {
-
-        if( !options.ovf )
-        {
-            const boxesPath = path.join(require('os').userInfo().homedir, '.baker', 'boxes');
-            const unpackPath = path.join(boxesPath, 'ubuntu-xenial');
-
-            util.mkDirByPathSync(boxesPath);
-            util.mkDirByPathSync(unpackPath);
-
-            // download files if not available locally
-            if (!(await fs.existsSync(path.join(unpackPath, 'box.ovf')))) {
-                console.log("no --ovf specified, downloading latest ubuntu box!");
-                const bar = new ProgressBar('[:bar] :percent :etas', {
-                    complete: '=',
-                    incomplete: ' ',
-                    width: 20,
-                    total: 0
-                });
-
-                // await download('http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-vagrant.box', boxesPath)
-                //       .on('response', res => {
-                //         // console.log(`Size: ${res.headers['content-length']}`);
-                //         bar.total = res.headers['content-length'];
-                //         res.on('data', data => bar.tick(data.length));
-                //       })
-                //       .then(() => console.log('downloaded!'));
-                // await tar.x(  // or tar.extract(
-                //     {
-                //       file: path.join(boxesPath, 'xenial-server-cloudimg-amd64-vagrant.box'),
-                //       C: unpackPath
-                //     }
-                // // );
-                // // Remove box
-                // fs.unlinkSync(path.join(boxesPath, 'xenial-server-cloudimg-amd64-vagrant.box'));
-            }
-            options.ovf = path.join(unpackPath, 'box.ovf');
-        }
+    if(options.provision && options.ovf) {
 
         try {
             await provider.check(options);

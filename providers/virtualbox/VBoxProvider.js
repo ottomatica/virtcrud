@@ -40,12 +40,21 @@ class VBoxProvider {
         return ipUtil.cidrSubnet(networkAddress + '/26').firstAddress;
     }
 
-    async micro(name, cpus, mem, iso, bridged, ssh_port, sshKeyPath, syncs, disk, verbose) {
-        await execute("createvm", `--name "${name}" --register`, verbose);
-        await execute("modifyvm", `"${name}" --memory ${mem} --cpus ${cpus}`, verbose);
-        await execute("storagectl", `"${name}" --name IDE --add ide`, verbose);
-        await execute("storageattach", `${name} --storagectl IDE --port 0 --device 0 --type dvddrive --medium "${iso}"`, verbose);
+    async micro(name, cpus, mem, image, bridged, ssh_port, sshKeyPath, syncs, disk, verbose) {
 
+        // Support import ovf or attach iso images.
+        if( image.indexOf(".ovf") >= 0)
+        {
+            await execute("import", `"${image}" --vsys 0 --vmname ${name}`, verbose);
+        }
+        if( image.indexOf(".iso") >= 0 )
+        {
+            await execute("createvm", `--name "${name}" --register`, verbose);
+            await execute("storagectl", `"${name}" --name IDE --add ide`, verbose);
+            await execute("storageattach", `${name} --storagectl IDE --port 0 --device 0 --type dvddrive --medium "${image}"`, verbose);
+        }
+
+        await execute("modifyvm", `"${name}" --memory ${mem} --cpus ${cpus}`, verbose);
         await execute("modifyvm", `${name}  --uart1 0x3f8 4 --uartmode1 disconnected`, verbose);
         
         // NIC1 =======

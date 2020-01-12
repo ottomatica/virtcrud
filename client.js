@@ -24,9 +24,9 @@ const virtcrud = require('./index');
     }
 
     vbox.privateKey = 'C:/Users/chris/.baker/baker_rsa';
-    await vbox.create('test-vbox', 
+    await vbox.create('test-ovf', 
     {   
-        iso: 'C:/Users/chris/.bakerx/.persist/images/alpine3.8-simple/vbox.iso',
+        ovf: require('path').join(require('os').homedir(), '.bakerx','.persist','images','bionic', 'box.ovf'),
         bridged: true
     });
 

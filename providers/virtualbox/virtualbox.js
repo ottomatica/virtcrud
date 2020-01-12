@@ -92,12 +92,9 @@ class VirtualBox {
 
     async create(name, options)
     {
-
-
         let args = {
             vmname: name,
             micro: true,
-            attach_iso: options.iso,
             quickBoot: true,
             bridged: true,
             cpus: options.cpus || this.defaultOptions.cpus,
@@ -107,6 +104,9 @@ class VirtualBox {
             verbose: options.verbose || this.defaultOptions.verbose,
             ssh_port: options.ssh_port || this.defaultOptions.ssh_port,
         };
+
+        if( options.iso ) args.attach_iso = options.iso;
+        if( options.ovf ) args.ovf = options.ovf;
 
         if ((await this.driver.list()).filter(e => e.name === name).length == 0) {
             await vbox(args);
