@@ -30,6 +30,7 @@ class VirtualBox {
 
         this.driver = new VBoxProvider();
         this.privateKey = null;
+        this.sshUser = 'root'; // root unless overridden.
     }
 
     
@@ -87,7 +88,7 @@ class VirtualBox {
                 port = parseInt( vmInfo[key].split(',')[3]);
             }
         });
-        return {user: 'root', port: port, host: machine, hostname: '127.0.0.1', private_key: this.privateKey};
+        return {user: this.sshUser, port: port, host: machine, hostname: '127.0.0.1', private_key: this.privateKey};
     }
 
     async create(name, options)
