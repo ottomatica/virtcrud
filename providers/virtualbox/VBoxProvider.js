@@ -305,7 +305,7 @@ class VBoxProvider {
 
     async waitForBoot(name) {
         return new Promise(function (resolve, reject) {
-            exec(`${VBexe} guestproperty enumerate '${name}'`, (error, stdout, stderr) => {
+            exec(`${VBexe} guestproperty enumerate "${name}"`, (error, stdout, stderr) => {
                 if (error || stderr) {
                     console.error(`exec error: vboxmanage guestproperty enumerate ${name}`);
                     console.error(`=> ${error}, ${stderr}`);
