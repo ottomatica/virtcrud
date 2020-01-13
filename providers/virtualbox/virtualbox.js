@@ -114,9 +114,6 @@ class VirtualBox {
         } else if((await this.getState(name)) != 'running') {
             await vbox({start: true, vmname: name, syncs: [], verbose: true});
         }
-
-        let sshInfo = await this.getSSHConfig(name);
-        console.log(`ssh -i ${slash(sshInfo.private_key)} ${sshInfo.user}@${sshInfo.hostname} -p ${sshInfo.port} -o StrictHostKeyChecking=no`)
     }
 
 
