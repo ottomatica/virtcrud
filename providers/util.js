@@ -1,5 +1,6 @@
 const fs            = require('fs');
 const path          = require('path');
+const chalk         = require('chalk');
 // const Client        = require('ssh2').Client;
 // const scp2          = require('scp2');
 const isPortAvailable = require('is-port-available');
@@ -33,8 +34,8 @@ module.exports.findAvailablePort = async function findAvailablePort(provider, ve
   let blackListPorts = await module.exports.getPortsUsedByVMs(provider);
   if( verbose )
   {
-    console.log(`Searching between ports ${startPort} and ${endPort} for ssh on localhost for this vm.`);
-    console.log(`Excluding the following ports already used by VirtualBox VMS: ${blackListPorts}`);
+    console.log(chalk.gray(`Searching between ports ${startPort} and ${endPort} for ssh on localhost for this vm.`));
+    console.log(chalk.gray(`Excluding the following ports already used by VirtualBox VMS: ${blackListPorts}`));
   }
   while( port <= endPort )
   {
@@ -43,7 +44,7 @@ module.exports.findAvailablePort = async function findAvailablePort(provider, ve
       var status = await isPortAvailable(port);
       if(status) 
       {
-        console.log(`Port ${port} is available for ssh on localhost!`);
+        console.log(chalk.gray(`Port ${port} is available for ssh on localhost!`));
         return port;
       }
     }
