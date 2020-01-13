@@ -1,5 +1,7 @@
 const exec = require('child_process').exec;
 const VBexe = process.platform === 'win32' ? '"C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe"' : 'VBoxManage';
+const chalk = require('chalk');
+
 
 module.exports = function(cmd, args, verbose) {
 
@@ -9,7 +11,7 @@ module.exports = function(cmd, args, verbose) {
 
         if( verbose )
         {
-            console.log( `Executing ${runCmd}` );
+            console.log( chalk.gray(`Executing ${runCmd}`) );
         }
 
         exec(runCmd, (error, stdout, stderr) => {
