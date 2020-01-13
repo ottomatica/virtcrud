@@ -106,8 +106,8 @@ class VirtualBox {
             ssh_port: options.ssh_port || this.defaultOptions.ssh_port,
         };
 
-        if( options.iso ) args.attach_iso = options.iso;
-        if( options.ovf ) args.ovf = options.ovf;
+        if( options.image.endsWith('.iso') ) args.attach_iso = options.image;
+        if( options.image.endsWith('.ovf')  ) args.ovf = options.image;
 
         if ((await this.driver.list()).filter(e => e.name === name).length == 0) {
             await vbox(args);
