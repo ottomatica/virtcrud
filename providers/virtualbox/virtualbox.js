@@ -97,7 +97,8 @@ class VirtualBox {
             vmname: name,
             micro: true,
             quickBoot: true,
-            bridged: true,
+            bridged: options.bridged,
+            ip: options.ip,
             cpus: options.cpus || this.defaultOptions.cpus,
             mem: options.mem || this.defaultOptions.mem,
             syncs: options.syncs || this.defaultOptions.syncs,
@@ -115,7 +116,6 @@ class VirtualBox {
             await vbox({start: true, vmname: name, syncs: [], verbose: true});
         }
     }
-
 
     async stop(name, force = false) {
         await vbox({ stopCmd: true, vmname: name, syncs: [], verbose: false }).catch(e => e);

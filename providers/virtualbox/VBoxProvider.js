@@ -40,7 +40,7 @@ class VBoxProvider {
         return ipUtil.cidrSubnet(networkAddress + '/26').firstAddress;
     }
 
-    async micro(name, cpus, mem, image, bridged, ssh_port, sshKeyPath, syncs, disk, verbose) {
+    async micro(name, cpus, mem, image, bridged, ip, ssh_port, sshKeyPath, syncs, disk, verbose) {
 
         // Support import ovf or attach iso images.
         if( image.indexOf(".ovf") >= 0)
@@ -61,8 +61,15 @@ class VBoxProvider {
         await execute("modifyvm", `${name} --nic1 nat`, verbose);
         await execute("modifyvm", `${name} --nictype1 virtio`, verbose);
 
-        await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${await env.defaultNetworkInterface()}"`, verbose);
-        await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
+        if( bridged )
+        {
+            await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${await env.defaultNetworkInterface()}"`, verbose);
+            await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
+        }
+        else if( ip )
+        {
+            await this.addhostOnlyNIC(name, ip, verbose);
+        }
         
         // port forwarding
         await execute("modifyvm", `${name} --natpf1 "guestssh,tcp,,${ssh_port},,22"`, verbose);
@@ -136,7 +143,7 @@ class VBoxProvider {
 
         if( ip )
         {
-            this.addhostOnlyNIC(name, ip, verbose);
+            await this.addhostOnlyNIC(name, ip, verbose);
         }
 
         // port forwarding for ssh
