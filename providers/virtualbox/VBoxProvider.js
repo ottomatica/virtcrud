@@ -136,28 +136,7 @@ class VBoxProvider {
 
         if( ip )
         {
-            // NIC2 =======
-            let VBOXNET = null;
-            // check if any adapters with this ip :
-            let gateway = this._calculateGateway(ip);
-            let networks = (await this.hostonlyifs()).filter(e => e.IPAddress === gateway);
-            if (networks.length > 0 )
-            {
-                VBOXNET = networks[0].Name;
-                console.log(`Using ${gateway} in ${VBOXNET}`);
-            }
-            else 
-            {
-                let stdout = (await execAsync(`${VBexe} hostonlyif create`)).stdout;
-                VBOXNET = stdout.substr(stdout.indexOf(`'`) + 1, stdout.lastIndexOf(`'`) - stdout.indexOf(`'`) - 1);
-                console.log('created adapter:', VBOXNET);
-            }
-
-            await execute("hostonlyif", `ipconfig "${VBOXNET}" --ip ${gateway}`, verbose);
-            
-            await execute("modifyvm", `${name} --hostonlyadapter2 "${VBOXNET}"`, verbose);
-            await execute("modifyvm", `${name} --nic2 hostonly`, verbose);
-            await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
+            this.addhostOnlyNIC(name, ip, verbose);
         }
 
         // port forwarding for ssh
@@ -302,6 +281,34 @@ class VBoxProvider {
             })
         });
     }
+
+    async addhostOnlyNIC(name, ip, verbose)
+    {
+        // NIC2 =======
+        let VBOXNET = null;
+        // check if any adapters with this ip :
+        let gateway = this._calculateGateway(ip);
+        let networks = (await this.hostonlyifs()).filter(e => e.IPAddress === gateway);
+        if (networks.length > 0 )
+        {
+            VBOXNET = networks[0].Name;
+            console.log(`Using ${gateway} in ${VBOXNET}`);
+        }
+        else 
+        {
+            // Potential sudo prompt
+            let stdout = (await execAsync(`${VBexe} hostonlyif create`)).stdout;
+            VBOXNET = stdout.substr(stdout.indexOf(`'`) + 1, stdout.lastIndexOf(`'`) - stdout.indexOf(`'`) - 1);
+            console.log('created adapter:', VBOXNET);
+        }
+
+        await execute("hostonlyif", `ipconfig "${VBOXNET}" --ip ${gateway}`, verbose);
+        
+        await execute("modifyvm", `"${name}" --hostonlyadapter2 "${VBOXNET}"`, verbose);
+        await execute("modifyvm", `"${name}" --nic2 hostonly`, verbose);
+        await execute("modifyvm", `"${name}" --nictype2 virtio`, verbose);
+    }
+
 
     async waitForBoot(name) {
         return new Promise(function (resolve, reject) {
