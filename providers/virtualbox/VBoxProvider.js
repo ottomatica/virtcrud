@@ -47,8 +47,8 @@ class VBoxProvider {
         {
             await execute("import", `"${image}" --vsys 0 --vmname ${name}`, verbose);
             // Quick boot
-            await execute("modifyvm", `${name} --boot1 disk`);
-            await execute("modifyvm", `${name} --biosbootmenu disabled`);
+            await execute("modifyvm", `${name} --boot1 disk`, verbose);
+            await execute("modifyvm", `${name} --biosbootmenu disabled`, verbose);
         }
         if( image.indexOf(".iso") >= 0 )
         {
