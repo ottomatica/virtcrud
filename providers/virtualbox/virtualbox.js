@@ -133,18 +133,19 @@ class VirtualBox {
            }
 
            // Add mount to /etc/fstab for every shared folder
+           let count = 0;
            for( var sync of syncs )
            {
-               let host = sync.split(';')[0];
                let guest = sync.split(';')[1];
 
                try {
-                   let LINE=`${host}    ${guest}   vboxsf  uid=1000,gid=1000   0   0`; let FILE=`/etc/fstab`; 
+                   let LINE=`"vbox-share-${count}"    ${guest}   vboxsf  uid=1000,gid=1000   0   0`; let FILE=`/etc/fstab`; 
                    let cmd = `${sudo} mkdir -p ${guest}; grep -qF -- "${LINE}" "${FILE}" || echo "${LINE}" | ${sudo} tee -a "${FILE}"`;
                    await connector.exec( cmd );
                } catch (error) {
                    throw `failed to add fstab entry for shared folder, ${error}`;
                }
+               count++;
            }
 
            // Reload fstab
