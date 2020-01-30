@@ -117,6 +117,49 @@ class VirtualBox {
         }
     }
 
+    async mountShares(syncs, connector, user, useSudo)
+    {
+       let sudo = useSudo?"sudo ":"";
+       // Handle sync folders
+       if( syncs.length > 0 )
+       {
+           // Add vboxsf to modules so we can enable shared folders; ensure our user is in vboxsf group
+           try {
+             let LINE =  "vboxsf"; let FILE= '/etc/modules';
+             let cmd = `(grep -qF -- "${LINE}" "${FILE}" || echo "${LINE}" |  tee -a "${FILE}"); ${sudo} usermod -a -G vboxsf ${user}`;
+             await connector.exec( cmd );
+           } catch (error) {
+               throw `failed to setup shared folders, ${error}`;
+           }
+
+           // Add mount to /etc/fstab for every shared folder
+           for( var sync of syncs )
+           {
+               let host = sync.split(';')[0];
+               let guest = sync.split(';')[1];
+
+               try {
+                   let LINE=`${host}    ${guest}   vboxsf  uid=1000,gid=1000   0   0`; let FILE=`/etc/fstab`; 
+                   let cmd = `${sudo} mkdir -p ${guest}; grep -qF -- "${LINE}" "${FILE}" || echo "${LINE}" | ${sudo} tee -a "${FILE}"`;
+                   await connector.exec( cmd );
+               } catch (error) {
+                   throw `failed to add fstab entry for shared folder, ${error}`;
+               }
+           }
+
+           // Reload fstab
+           try {
+               let cmd = `${sudo} mount -a`;
+               await connector.exec(cmd);
+           } catch (error) {
+               throw `failed to setup shared folders, ${error}`;
+           }
+           
+       }
+
+    }
+
+
     async stop(name, force = false) {
         await vbox({ stopCmd: true, vmname: name, syncs: [], verbose: false }).catch(e => e);
     }
