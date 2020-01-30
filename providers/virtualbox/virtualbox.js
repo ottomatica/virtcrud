@@ -125,8 +125,7 @@ class VirtualBox {
        {
            // Add vboxsf to modules so we can enable shared folders; ensure our user is in vboxsf group
            try {
-             let LINE =  "vboxsf"; let FILE= '/etc/modules';
-             let cmd = `(grep -qF -- "${LINE}" "${FILE}" || echo "${LINE}" | ${sudo} tee -a "${FILE}"); ${sudo} usermod -a -G vboxsf ${user}`;
+             let cmd = `${sudo} modprobe vboxsf; ${sudo} usermod -a -G vboxsf ${user}`;
              await connector.exec( cmd );
            } catch (error) {
                throw `failed to setup shared folders, ${error}`;
