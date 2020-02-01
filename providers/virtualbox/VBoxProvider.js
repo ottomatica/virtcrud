@@ -67,6 +67,7 @@ class VBoxProvider {
         await execute("modifyvm", `${name} --nic1 nat`, verbose);
         await execute("modifyvm", `${name} --nictype1 virtio`, verbose);
 
+        let VBOXNET = null;
         if( bridged )
         {
             await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${await env.defaultNetworkInterface()}"`, verbose);
@@ -74,7 +75,7 @@ class VBoxProvider {
         }
         else if( ip )
         {
-            await this.addhostOnlyNIC(name, ip, verbose);
+            VBOXNET = await this.addhostOnlyNIC(name, ip, verbose);
         }
         
         // port forwarding
@@ -111,7 +112,16 @@ class VBoxProvider {
             }
         }
 
-        await this.start(name, verbose);
+        try {
+            await this.start(name, verbose);
+        } catch(e) {
+            if(e.message.includes('VERR_INTNET_FLT_IF_NOT_FOUND') && VBOXNET)
+            {
+                console.log('Repairing network interface.')
+                await util.repairInterface(VBOXNET);
+                await this.start(name, verbose);
+            }
+        }
 
         // post setup
         if( disk )
@@ -146,6 +156,7 @@ class VBoxProvider {
         // NIC1 =======
         await execute("modifyvm", `${name} --nic1 nat`, verbose);
         await execute("modifyvm", `${name} --nictype1 virtio`, verbose);
+
 
         if( ip )
         {
@@ -320,6 +331,7 @@ class VBoxProvider {
         await execute("modifyvm", `"${name}" --hostonlyadapter2 "${VBOXNET}"`, verbose);
         await execute("modifyvm", `"${name}" --nic2 hostonly`, verbose);
         await execute("modifyvm", `"${name}" --nictype2 virtio`, verbose);
+        return VBOXNET;
     }
 
 
