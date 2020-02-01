@@ -118,7 +118,7 @@ class VBoxProvider {
             if(e.message.includes('VERR_INTNET_FLT_IF_NOT_FOUND') && VBOXNET)
             {
                 console.log('Repairing network interface.')
-                await util.repairInterface(VBOXNET);
+                await util.repairNetwork(VBOXNET);
                 await this.start(name, verbose);
             }
         }
