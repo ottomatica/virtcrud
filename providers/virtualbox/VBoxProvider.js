@@ -12,7 +12,7 @@ const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
 const ipUtil = require('ip');
-//const util = require('../lib/util');
+const util = require('../util');
 const VBexe = process.platform === 'win32' ? '"C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe"' : 'VBoxManage';
 
 const isPortAvailable = require('is-port-available');
