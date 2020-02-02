@@ -63,19 +63,17 @@ module.exports.getPortsUsedByVMs = async function getPortsUsedByVMs(provider)
   let ports = [];
   for( var vm of vms )
   {
-    let properties = await provider.info(vm.name);
-    for( let prop in properties )
-    {
-      if( prop.indexOf('Forwarding(') >= 0 )
+    try {
+      let properties = await provider.info(vm.name);
+      for( let prop in properties )
       {
-        try{
-          ports.push( parseInt( properties[prop].split(',')[3]) );
-        }
-        catch(e)
+        if( prop.indexOf('Forwarding(') >= 0 )
         {
-          console.error(e);
+            ports.push( parseInt( properties[prop].split(',')[3]) );
         }
       }
+    } catch( e ) {
+      console.error(e);      
     }
   }
   return ports;
