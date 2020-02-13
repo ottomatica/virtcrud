@@ -1,6 +1,6 @@
 {
   "name": "virtcrud",
-  "version": "1.2.0",
+  "version": "1.2.3",
   "description": "Create, read, update, and delete virtual environments across multiple providers.",
   "main": "index.js",
   "scripts": {
@@ -26,8 +26,9 @@
     "ip": "^1.1.5",
     "is-port-available": "^0.1.5",
     "lookpath": "^1.0.4",
-    "mustache": "^3.2.0",
+    "mustache": "^3.2.1",
     "slash": "^3.0.0",
-    "systeminformation": "^4.16.0"
+    "sudo-prompt": "^9.1.1",
+    "systeminformation": "^4.21.1"
   }
 }
