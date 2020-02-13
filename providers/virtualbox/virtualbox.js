@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const vbox = require('./index');
 const VBoxProvider = require('./VBoxProvider');
-
+const chalk = require('chalk');
 
 // const env = require('../env');
 // const ping = require('../health');
