@@ -32,7 +32,7 @@ module.exports = async function (options = {}) {
 
     if(options.micro) {
         try {
-            await provider.micro(options.vmname, options.cpus, options.mem, options.attach_iso || options.ovf, options.bridged, options.ssh_port, path.join(__dirname,'config/resources/baker_rsa'), options.syncs, options.disk, options.verbose);
+            await provider.micro(options.vmname, options.cpus, options.mem, options.attach_iso || options.ovf, options.bridged, options.ip, options.ssh_port, path.join(__dirname,'config/resources/baker_rsa'), options.syncs, options.disk, options.verbose);
        } catch (error) {
             console.error('=> exec error:', error);
         }

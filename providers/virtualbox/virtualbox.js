@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const vbox = require('./index');
 const VBoxProvider = require('./VBoxProvider');
-
+const chalk = require('chalk');
 
 // const env = require('../env');
 // const ping = require('../health');
@@ -97,7 +97,8 @@ class VirtualBox {
             vmname: name,
             micro: true,
             quickBoot: true,
-            bridged: true,
+            bridged: options.bridged,
+            ip: options.ip,
             cpus: options.cpus || this.defaultOptions.cpus,
             mem: options.mem || this.defaultOptions.mem,
             syncs: options.syncs || this.defaultOptions.syncs,
@@ -114,6 +115,48 @@ class VirtualBox {
         } else if((await this.getState(name)) != 'running') {
             await vbox({start: true, vmname: name, syncs: [], verbose: true});
         }
+    }
+
+    async mountShares(syncs, connector, user, useSudo)
+    {
+       let sudo = useSudo?"sudo ":"";
+       // Handle sync folders
+       if( syncs.length > 0 )
+       {
+           // Add vboxsf to modules so we can enable shared folders; ensure our user is in vboxsf group
+           try {
+             let cmd = `${sudo} modprobe vboxsf; ${sudo} usermod -a -G vboxsf ${user}`;
+             await connector.exec( cmd );
+           } catch (error) {
+               throw `failed to setup shared folders, ${error}`;
+           }
+
+           // Add mount to /etc/fstab for every shared folder
+           let count = 0;
+           for( var sync of syncs )
+           {
+               let guest = sync.split(';')[1];
+
+               try {
+                   let LINE=`"vbox-share-${count}"    ${guest}   vboxsf  uid=1000,gid=1000   0   0`; let FILE=`/etc/fstab`; 
+                   let cmd = `${sudo} mkdir -p ${guest}; grep -qF -- "${LINE}" "${FILE}" || echo "${LINE}" | ${sudo} tee -a "${FILE}"`;
+                   await connector.exec( cmd );
+               } catch (error) {
+                   throw `failed to add fstab entry for shared folder, ${error}`;
+               }
+               count++;
+           }
+
+           // Reload fstab
+           try {
+               let cmd = `${sudo} mount -a`;
+               await connector.exec(cmd);
+           } catch (error) {
+               throw `failed to setup shared folders, ${error}`;
+           }
+           
+       }
+
     }
 
 

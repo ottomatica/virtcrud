@@ -1,6 +1,9 @@
 const fs            = require('fs');
 const path          = require('path');
 const chalk         = require('chalk');
+const sudo = require('sudo-prompt');
+const si = require('systeminformation');
+
 // const Client        = require('ssh2').Client;
 // const scp2          = require('scp2');
 const isPortAvailable = require('is-port-available');
@@ -60,22 +63,54 @@ module.exports.getPortsUsedByVMs = async function getPortsUsedByVMs(provider)
   let ports = [];
   for( var vm of vms )
   {
-    let properties = await provider.info(vm.name);
-    for( let prop in properties )
-    {
-      if( prop.indexOf('Forwarding(') >= 0 )
+    try {
+      let properties = await provider.info(vm.name);
+      for( let prop in properties )
       {
-        try{
-          ports.push( parseInt( properties[prop].split(',')[3]) );
-        }
-        catch(e)
+        if( prop.indexOf('Forwarding(') >= 0 )
         {
-          console.error(e);
+            ports.push( parseInt( properties[prop].split(',')[3]) );
         }
       }
+    } catch( e ) {
+      console.error(e);      
     }
   }
   return ports;
+}
+
+// In Windows creating a host only network often result in failure for a multitude of reasons.
+// A common workaround is to disable and enable the network interface.
+module.exports.repairNetwork = async function repairNetwork(ifaceName)
+{
+    // We need to look up the iface identifier, which is different than the ifaceName.
+    let iFaces = await si.networkInterfaces();
+    let result = iFaces.filter( (iFace) => iFace.ifaceName == ifaceName );
+    if( result.length == 0 )
+    {
+        throw new Error(`Could not find network interface named ${ifaceName}`);
+    }
+    let networkInterface = result[0].iface;
+
+    // We will use netsh to disable and enable the interface.
+    // Unfortunately this requires an admin prompt, so we will request a privilenged shell.
+    var options = {
+        name: 'ottomatica virtcrud',
+    };
+    let output = await sudoprompt(`netsh interface set interface "${networkInterface}" disable && netsh interface set interface "${networkInterface}" enable`, options);
+    //console.log(output);
+}
+
+function sudoprompt(cmd, options)
+{
+    return new Promise( function(resolve,reject)
+    {
+        sudo.exec(cmd, options,
+        function(error, stdout, stderr) {
+            if (error) { reject(error); return;}
+            resolve(stdout);
+        });
+    });
 }
 
 module.exports.scp = async function scp(src, dest, destSSHConfig) {

@@ -12,7 +12,7 @@ const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
 const ipUtil = require('ip');
-//const util = require('../lib/util');
+const util = require('../util');
 const VBexe = process.platform === 'win32' ? '"C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe"' : 'VBoxManage';
 
 const isPortAvailable = require('is-port-available');
@@ -40,18 +40,24 @@ class VBoxProvider {
         return ipUtil.cidrSubnet(networkAddress + '/26').firstAddress;
     }
 
-    async micro(name, cpus, mem, image, bridged, ssh_port, sshKeyPath, syncs, disk, verbose) {
+    async micro(name, cpus, mem, image, bridged, ip, ssh_port, sshKeyPath, syncs, disk, verbose) {
 
         // Support import ovf or attach iso images.
         if( image.indexOf(".ovf") >= 0)
         {
             await execute("import", `"${image}" --vsys 0 --vmname ${name}`, verbose);
+            // Quick boot
+            await execute("modifyvm", `${name} --boot1 disk`, verbose);
+            await execute("modifyvm", `${name} --biosbootmenu disabled`, verbose);
         }
         if( image.indexOf(".iso") >= 0 )
         {
             await execute("createvm", `--name "${name}" --register`, verbose);
             await execute("storagectl", `"${name}" --name IDE --add ide`, verbose);
             await execute("storageattach", `${name} --storagectl IDE --port 0 --device 0 --type dvddrive --medium "${image}"`, verbose);
+            // Quick boot
+            await execute("modifyvm", `${name} --boot1 dvd`, verbose);
+            await execute("modifyvm", `${name} --biosbootmenu disabled`, verbose);
         }
 
         await execute("modifyvm", `"${name}" --memory ${mem} --cpus ${cpus}`, verbose);
@@ -61,8 +67,16 @@ class VBoxProvider {
         await execute("modifyvm", `${name} --nic1 nat`, verbose);
         await execute("modifyvm", `${name} --nictype1 virtio`, verbose);
 
-        await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${await env.defaultNetworkInterface()}"`, verbose);
-        await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
+        let VBOXNET = null;
+        if( bridged )
+        {
+            await execute("modifyvm", `${name} --nic2 bridged --bridgeadapter2 "${await env.defaultNetworkInterface()}"`, verbose);
+            await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
+        }
+        else if( ip )
+        {
+            VBOXNET = await this.addhostOnlyNIC(name, ip, verbose);
+        }
         
         // port forwarding
         await execute("modifyvm", `${name} --natpf1 "guestssh,tcp,,${ssh_port},,22"`, verbose);
@@ -98,7 +112,16 @@ class VBoxProvider {
             }
         }
 
-        await this.start(name, verbose);
+        try {
+            await this.start(name, verbose);
+        } catch(e) {
+            if(e.message.includes('VERR_INTNET_FLT_IF_NOT_FOUND') && VBOXNET)
+            {
+                console.log('Repairing network interface.')
+                await util.repairNetwork(VBOXNET);
+                await this.start(name, verbose);
+            }
+        }
 
         // post setup
         if( disk )
@@ -134,30 +157,10 @@ class VBoxProvider {
         await execute("modifyvm", `${name} --nic1 nat`, verbose);
         await execute("modifyvm", `${name} --nictype1 virtio`, verbose);
 
+
         if( ip )
         {
-            // NIC2 =======
-            let VBOXNET = null;
-            // check if any adapters with this ip :
-            let gateway = this._calculateGateway(ip);
-            let networks = (await this.hostonlyifs()).filter(e => e.IPAddress === gateway);
-            if (networks.length > 0 )
-            {
-                VBOXNET = networks[0].Name;
-                console.log(`Using ${gateway} in ${VBOXNET}`);
-            }
-            else 
-            {
-                let stdout = (await execAsync(`${VBexe} hostonlyif create`)).stdout;
-                VBOXNET = stdout.substr(stdout.indexOf(`'`) + 1, stdout.lastIndexOf(`'`) - stdout.indexOf(`'`) - 1);
-                console.log('created adapter:', VBOXNET);
-            }
-
-            await execute("hostonlyif", `ipconfig "${VBOXNET}" --ip ${gateway}`, verbose);
-            
-            await execute("modifyvm", `${name} --hostonlyadapter2 "${VBOXNET}"`, verbose);
-            await execute("modifyvm", `${name} --nic2 hostonly`, verbose);
-            await execute("modifyvm", `${name} --nictype2 virtio`, verbose);
+            await this.addhostOnlyNIC(name, ip, verbose);
         }
 
         // port forwarding for ssh
@@ -238,7 +241,7 @@ class VBoxProvider {
         await this.setupSyncFoldersOnGuest(vmname, syncs, port, sshKeyPath, verbose);
        
     }
-
+  
     async setupSyncFoldersOnGuest(vmname, syncs, port, sshKeyPath, verbose)
     {
        // Handle sync folders
@@ -302,6 +305,35 @@ class VBoxProvider {
             })
         });
     }
+
+    async addhostOnlyNIC(name, ip, verbose)
+    {
+        // NIC2 =======
+        let VBOXNET = null;
+        // check if any adapters with this ip :
+        let gateway = this._calculateGateway(ip);
+        let networks = (await this.hostonlyifs()).filter(e => e.IPAddress === gateway);
+        if (networks.length > 0 )
+        {
+            VBOXNET = networks[0].Name;
+            console.log(`Using ${gateway} in ${VBOXNET}`);
+        }
+        else 
+        {
+            // Potential sudo prompt
+            let stdout = (await execAsync(`${VBexe} hostonlyif create`)).stdout;
+            VBOXNET = stdout.substr(stdout.indexOf(`'`) + 1, stdout.lastIndexOf(`'`) - stdout.indexOf(`'`) - 1);
+            console.log('created adapter:', VBOXNET);
+        }
+
+        await execute("hostonlyif", `ipconfig "${VBOXNET}" --ip ${gateway}`, verbose);
+        
+        await execute("modifyvm", `"${name}" --hostonlyadapter2 "${VBOXNET}"`, verbose);
+        await execute("modifyvm", `"${name}" --nic2 hostonly`, verbose);
+        await execute("modifyvm", `"${name}" --nictype2 virtio`, verbose);
+        return VBOXNET;
+    }
+
 
     async waitForBoot(name) {
         return new Promise(function (resolve, reject) {
