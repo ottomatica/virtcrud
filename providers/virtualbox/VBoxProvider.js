@@ -108,6 +108,7 @@ class VBoxProvider {
                 let host = sync.split(';')[0];
                 let guest = sync.split(';')[1];
                 await execute("sharedfolder", `add ${name} --name "vbox-share-${count}" --hostpath "${host}" `, verbose);
+                await execute("setextradata", `"${name}" VBoxInternal2/SharedFoldersEnableSymlinksCreate/vbox-share-${count} 1`, verbose);
                 count++;
             }
         }
