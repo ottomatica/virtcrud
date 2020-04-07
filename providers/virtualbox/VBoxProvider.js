@@ -53,7 +53,7 @@ class VBoxProvider {
         if( image.indexOf(".iso") >= 0 )
         {
             await execute("createvm", `--name "${name}" --register`, verbose);
-            //await execute("storagectl", `"${name}" --name IDE --add ide`, verbose);
+            await execute("storagectl", `"${name}" --name IDE --add ide`, verbose);
             await execute("storageattach", `${name} --storagectl IDE --port 0 --device 0 --type dvddrive --medium "${image}"`, verbose);
             // Quick boot
             await execute("modifyvm", `${name} --boot1 dvd`, verbose);
