@@ -1,6 +1,6 @@
 {
   "name": "virtcrud",
-  "version": "1.2.4",
+  "version": "1.2.3",
   "description": "Create, read, update, and delete virtual environments across multiple providers.",
   "main": "index.js",
   "scripts": {

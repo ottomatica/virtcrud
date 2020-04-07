@@ -56,8 +56,8 @@ class VBoxProvider {
             await execute("storagectl", `"${name}" --name IDE --add ide`, verbose);
             await execute("storageattach", `${name} --storagectl IDE --port 0 --device 0 --type dvddrive --medium "${image}"`, verbose);
             // Quick boot
-            // await execute("modifyvm", `${name} --boot1 dvd`, verbose);
-            // await execute("modifyvm", `${name} --biosbootmenu disabled`, verbose);
+            await execute("modifyvm", `${name} --boot1 dvd`, verbose);
+            await execute("modifyvm", `${name} --biosbootmenu disabled`, verbose);
         }
 
         await execute("modifyvm", `"${name}" --memory ${mem} --cpus ${cpus}`, verbose);
