@@ -28,7 +28,7 @@
     "lookpath": "^1.0.5",
     "mustache": "^4.0.0",
     "slash": "^3.0.0",
-    "sudo-prompt": "^9.1.1",
+    "sudo-prompt": "^9.2.1",
     "systeminformation": "^4.22.3"
   }
 }
