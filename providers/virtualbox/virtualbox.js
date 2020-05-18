@@ -4,9 +4,9 @@ const slash = require('slash');
 const fs = require('fs-extra');
 //const ssh = require('ssh2-client');
 const path = require('path');
-const child_process = require('child_process');
 const os = require('os');
 const vbox = require('./index');
+const util = require('../util');
 const VBoxProvider = require('./VBoxProvider');
 const chalk = require('chalk');
 
@@ -38,14 +38,14 @@ class VirtualBox {
     
     async requirements()
     {
-        if( !this.checkVirt() ) {
+        if( !util.checkVirt() ) {
             
-            if(os.platform() === 'win32' && this.checkHyperV())
+            if(os.platform() === 'win32' && util.checkHyperV())
                 console.log(chalk.red(`Error: VirtualBox VMs cannot run when Hyper-V is enabled.`));
             else
                 console.log(chalk.red(`Error: VT-x/AMD-V hardware virtualization is not enabled on your system.`));
             
-            return false
+            return false;
         }
 
         const vboxmanage = await lookpath('VBoxManage') || fs.existsSync( "C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe" );
@@ -206,51 +206,6 @@ class VirtualBox {
     async attach(name) {
         const sshInfo = await this.getSSHConfig(name);
         ssh.shell(`${sshInfo.user}@${sshInfo.hostname}`, {port: sshInfo.port, privateKey: sshInfo.private_key, readyTimeout: 30000});
-    }
-
-    checkVirt() {
-        let status = null;
-        if (os.platform() === 'win32') {
-            let output = child_process.execSync('systeminfo');
-            if (output && output.toString().indexOf('Virtualization Enabled In Firmware: Yes') !== -1) {
-                status = true;
-            } else {
-                status = false;
-            }
-        } else if (os.platform() === 'darwin') {
-            let output = child_process.execSync('sysctl -a | grep machdep.cpu.features');
-            if (output && output.toString().indexOf('VMX') !== -1) {
-                status = true;
-            } else {
-                status = false;
-            }
-        } else if (os.platform() === 'linux') {
-            let output = null;
-            try {
-                output = child_process.execSync("cat /proc/cpuinfo | grep -E -c 'svm|vmx'");
-            } catch (err) { 
-                output = err.stdout.toString();
-            }
-            
-            if (output != 0) {
-                status = true;
-            } else {
-                status = false;
-            }
-        }
-        return status;
-    }
-
-    checkHyperV() {
-        if (os.platform() === 'win32') {
-            let output = child_process.execSync('systeminfo');
-            if (output && output.toString().includes('A hypervisor has been detected. Features required for Hyper-V will not be displayed.')) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return false;
     }
 }
 

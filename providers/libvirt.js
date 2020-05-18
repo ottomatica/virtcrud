@@ -6,8 +6,7 @@ const mustache = require('mustache');
 const fs = require('fs');
 const slash = require('slash');
 const child = require('child_process');
-
-
+const util = require('./util');
 
 
 class Qemu {
@@ -102,6 +101,13 @@ class Qemu {
 
     async requirements()
     {
+        if( !util.checkVirt() ) {
+            
+            console.log(chalk.red(`Error: VT-x/AMD-V hardware virtualization is not enabled on your system.`));
+            
+            return false;
+        }
+
         const qemu = await lookpath('qemu-system-x86_64');
         if( !qemu )
         {

@@ -1,5 +1,7 @@
 const fs            = require('fs');
 const path          = require('path');
+const child_process = require('child_process');
+const os = require('os');
 const chalk         = require('chalk');
 const sudo = require('sudo-prompt');
 const si = require('systeminformation');
@@ -171,4 +173,50 @@ module.exports.sshExec = async function sshExec(cmd, sshConfig, timeout=20000, v
                 readyTimeout: timeout
             });
     });
+}
+
+
+module.exports.checkVirt = function checkVirt() {
+  let status = null;
+  if (os.platform() === 'win32') {
+      let output = child_process.execSync('systeminfo');
+      if (output && output.toString().indexOf('Virtualization Enabled In Firmware: Yes') !== -1) {
+          status = true;
+      } else {
+          status = false;
+      }
+  } else if (os.platform() === 'darwin') {
+      let output = child_process.execSync('sysctl -a | grep machdep.cpu.features');
+      if (output && output.toString().indexOf('VMX') !== -1) {
+          status = true;
+      } else {
+          status = false;
+      }
+  } else if (os.platform() === 'linux') {
+      let output = null;
+      try {
+          output = child_process.execSync("cat /proc/cpuinfo | grep -E -c 'svm|vmx'");
+      } catch (err) { 
+          output = err.stdout.toString();
+      }
+      
+      if (output != 0) {
+          status = true;
+      } else {
+          status = false;
+      }
+  }
+  return status;
+}
+
+module.exports.checkHyperV = function checkHyperV() {
+  if (os.platform() === 'win32') {
+      let output = child_process.execSync('systeminfo');
+      if (output && output.toString().includes('A hypervisor has been detected. Features required for Hyper-V will not be displayed.')) {
+          return true;
+      } else {
+          return false;
+      }
+  }
+  return false;
 }
