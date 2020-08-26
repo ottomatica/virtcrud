@@ -29,6 +29,6 @@
     "mustache": "^4.0.1",
     "slash": "^3.0.0",
     "sudo-prompt": "^9.2.1",
-    "systeminformation": "^4.26.9"
+    "systeminformation": "^4.27.1"
   }
 }
