@@ -463,10 +463,13 @@ class VBoxProvider {
                     let properties = {};
                     let lines = stdout.split('\n');
                     for (let i = 0; i < lines.length-1; i++) {
-                        let lineSplit = lines[i].split('=');
-                        let name= lineSplit[0].trim();
-                        let id = lineSplit[1].trim();
-                        properties[name]=id;
+                        try {
+                            let lineSplit = lines[i].split('=');
+                            let name= lineSplit[0].trim();
+                            let id = lineSplit[1].trim();
+                            properties[name]=id;
+                        } catch (ex) {/*Ignore multiline strings in description*/}
+                        // https://github.com/ottomatica/virtcrud/issues/70
                     }
                     resolve(properties);
                 }
