@@ -1,0 +1,27 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "11:00"
+    timezone: EST
+  open-pull-requests-limit: 10
+  reviewers:
+  - ssmirr
+  ignore:
+  - dependency-name: systeminformation
+    versions:
+    - 5.0.5
+    - 5.0.7
+    - 5.0.8
+    - 5.0.9
+    - 5.1.1
+    - 5.1.2
+    - 5.2.2
+    - 5.3.0
+    - 5.3.2
+    - 5.3.3
+  - dependency-name: fs-extra
+    versions:
+    - 9.1.0
