@@ -25,7 +25,7 @@
     "fs-extra": "^9.1.0",
     "ip": "^1.1.5",
     "is-port-available": "^0.1.5",
-    "lookpath": "^1.1.0",
+    "lookpath": "^1.2.1",
     "mustache": "^4.1.0",
     "slash": "^3.0.0",
     "sudo-prompt": "^9.2.1",
