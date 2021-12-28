@@ -1,7 +1,7 @@
 
 const Qemu = require('./providers/libvirt');
 const VirtualBox = require('./providers/virtualbox/virtualbox')
-
+const HyperV = require('./providers/hyperv/')
 
 /**
  * virtcrud. Manage virtualization.
@@ -24,6 +24,10 @@ class virtcrud {
                 return new Qemu();
             case 'vbox':
                 return new VirtualBox();
+            case 'hyperv':
+                return new HyperV();
+            default:
+                throw new Error(`Provider ${type} is not supported`);
         }
     }
 
