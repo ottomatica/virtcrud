@@ -5,6 +5,8 @@ class HyperV {
 
     async create(name, options) {
 
+        options = options || {};
+
         let mem = options.mem || "1GB";
         let network = options.network || await PowerShellCommandlets.execute(PowerShellCommandlets.GetDefaultSwitch() );
         let disk = options.disk;
@@ -29,6 +31,15 @@ class HyperV {
 
     async requirements()
     {
+    }
+
+    async setup() {
+
+        await PowerShellCommandlets.sudoprompt( "powershell " + PowerShellCommandlets.AddCurrentUserToHyperVAdmin(), 
+        {
+            name: "Add current user to HyperV admin group"
+        } );
+
     }
 
 }
