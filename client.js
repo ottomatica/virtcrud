@@ -1,3 +1,5 @@
+const path = require('path');
+const { fsOpenFiles } = require('systeminformation');
 const virtcrud = require('./index');
 
 
@@ -20,10 +22,29 @@ async function vbox() {
 
 async function hyperv() {
     let hyperv = await virtcrud.getProvider('hyperv');
-    
+
+    // Add user to Hyper-V admin
     // await hyperv.setup();
 
-    await hyperv.create("V1");
+    // Prepare basic dir structure
+    const fs = require('fs-extra');
+    let workingDir = path.join(require('os').homedir(), ".virtcrud");
+    if( !fs.existsSync( workingDir ) ) { fs.mkdirSync(workingDir) }
+    fs.emptyDirSync( workingDir );
+
+    // Copy base image into vm dir
+    let baseImage = path.join( require('os').homedir(), 
+        ".slim/registry/ubuntu-20.04-ci-hyperv/rootfs.vhd");
+    let vmImage = path.join( workingDir, "rootfs.vhd");
+    fs.copyFileSync( baseImage, vmImage );
+
+    // cloudinit iso
+    let iso = path.join( require('os').homedir(), 
+    ".slim/registry/ubuntu-20.04-ci-hyperv/cidata.iso");
+
+    // await hyperv.stop("VX");
+    // await hyperv.delete("VX");
+    await hyperv.create("VX", {disk: vmImage, iso: iso});
 }
 
 (async () => {

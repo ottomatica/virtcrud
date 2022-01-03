@@ -17,6 +17,7 @@ class HyperV {
         if( diskInfo.ext === ".vhd" ) {
             let dest = path.join( path.dirname(disk), diskInfo.name + ".vhdx" ); 
             await PowerShellCommandlets.ConvertVHD(disk, dest, "Dynamic");
+            disk = dest;
         }
         
         await PowerShellCommandlets.NewVM(name, mem, disk, network);
