@@ -1,5 +1,6 @@
 
 const PowerShellCommandlets = require('./cmdlets');
+const path = require('path');
 
 class HyperV {
 
@@ -8,25 +9,36 @@ class HyperV {
         options = options || {};
 
         let mem = options.mem || "1GB";
-        let network = options.network || await PowerShellCommandlets.execute(PowerShellCommandlets.GetDefaultSwitch() );
+        let network = options.network || await PowerShellCommandlets.GetDefaultSwitch();
         let disk = options.disk;
 
-        await PowerShellCommandlets.execute( PowerShellCommandlets.NewVM(name, mem, disk, network) );
+        let diskInfo = path.parse(disk);
+
+        if( diskInfo.ext === ".vhd" ) {
+            let dest = path.join( path.dirname(disk), diskInfo.name + ".vhdx" ); 
+            await PowerShellCommandlets.ConvertVHD(disk, dest, "Dynamic");
+        }
+        
+        await PowerShellCommandlets.NewVM(name, mem, disk, network);
+        await PowerShellCommandlets.SetSecureBoot(name, "off");
 
         if( options.iso ) {
-            await PowerShellCommandlets.execute( PowerShellCommandlets.AddISO(name, 
-                0, 1, options.iso) );
+            await PowerShellCommandlets.AddISO(name, 0, 1, options.iso);
         }
 
+        return true;
     }
 
     async stop(name, options) {
+        return await PowerShellCommandlets.StopVM(name);
     }
 
     async start(name, options) {
+        return await PowerShellCommandlets.Start(name);
     }
 
     async status(name, options) {
+        return await PowerShellCommandlets.GetVMState(name);s
     }
 
     async requirements()
