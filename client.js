@@ -1,7 +1,5 @@
 const path = require('path');
-const { fsOpenFiles } = require('systeminformation');
 const virtcrud = require('./index');
-
 
 async function vbox() {
 
@@ -47,8 +45,17 @@ async function hyperv() {
     await hyperv.create("VX", {disk: vmImage, iso: iso});
 }
 
+async function vf() {
+
+    let vf =  await virtcrud.getProvider('vf');
+
+    await vf.create( "hello");
+
+}
+
+
 (async () => {
 
-    await hyperv();
+    await vf();
 
 })();

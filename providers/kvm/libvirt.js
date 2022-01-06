@@ -6,7 +6,7 @@ const mustache = require('mustache');
 const fs = require('fs');
 const slash = require('slash');
 const child = require('child_process');
-const util = require('./util');
+const util = require('../util');
 
 
 class Qemu {
@@ -61,7 +61,7 @@ class Qemu {
         };
 
 
-        let xml = (fs.readFileSync(path.join( __dirname, 'scripts', 'kvm.xml.mustache'))).toString();
+        let xml = (fs.readFileSync(path.join( __dirname, 'kvm', 'scripts', 'kvm.xml.mustache'))).toString();
         let render = mustache.render(xml, args);
 
         // TODO: Find home for output.
