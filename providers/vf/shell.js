@@ -6,14 +6,18 @@ class Shell {
 
     static async StartVM(kernel, initrd, rootfs, kernel_cmdline, iso) {
 
-        return Shell.exec(`${vfTool} \
-            -k ${kernel} \
-            -i ${initrd} \
-            -d ${rootfs} \
-            -a "${kernel_cmdline}" \
-            -t "tty1" \
-            -c ${iso}`
-        );
+        let cmd = `${vfTool} \
+        -k ${kernel} \
+        -i ${initrd} \
+        -d ${rootfs} \
+        -a "${kernel_cmdline}" \
+        -t "tty1"`;
+
+        if( iso ) {
+            cmd += "\\\n -c ${iso}"
+        }
+
+        return Shell.exec(cmd);
     }
 
     static async exec(cmd) {
