@@ -1,7 +1,7 @@
 const path = require("path");
 const exec = require("child_process").exec;
 
-const vfTool = path.join(require.main.path, "vendor", "vftool", "build", "vftool");
+const vfTool = path.join(__dirname, "vendor", "vftool", "build", "vftool");
 class Shell {
 
     static async StartVM(kernel, initrd, rootfs, kernel_cmdline, iso) {
