@@ -180,8 +180,15 @@ static VZVirtualMachineConfiguration *getVMConfig(unsigned int mem_size_mb,
     
     VZVirtioNetworkDeviceConfiguration *net_conf = [[VZVirtioNetworkDeviceConfiguration alloc] init];
     [net_conf setAttachment:nda];
+
+    VZMACAddress *lladdr;
+    lladdr = [VZMACAddress randomLocallyAdministeredAddress];
+	[net_conf setMACAddress:lladdr];
+
+    NSLog(@"+++ Network Mac Address: %@\n", [lladdr string]);
+
     [conf setNetworkDevices:@[net_conf]];
-    
+
 
     // Entropy
     VZEntropyDeviceConfiguration *entropy_conf = [[VZVirtioEntropyDeviceConfiguration alloc] init];
