@@ -8,6 +8,7 @@ class VirtualizationFramework {
 
     async create(name, options) {
         this.process = await Shell.StartVM(options.kernel, options.initrd, options.rootfs, options.kernel_cmdline, options.iso);
+        this.process.title = `VM ${name}` + this.process.title;
         return this.process;
     }
 
