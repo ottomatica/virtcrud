@@ -4,15 +4,19 @@ const { spawn } = require('child_process');
 const vfTool = path.join(__dirname, "vendor", "vftool", "build", "vftool");
 class Shell {
 
-    static async StartVM(kernel, initrd, rootfs, kernel_cmdline, iso) {
+    static async StartVM(kernel, initrd, rootfs, kernel_cmdline, tty, iso) {
 
         let args = [
             "-k", kernel,
             "-i", initrd,
             "-d", rootfs,
-            "-a", kernel_cmdline,
-            "-t", "tty1"
+            "-a", kernel_cmdline
         ];
+
+        if( tty ) {
+            args.push( "-t");
+            args.push( tty );
+        }
 
         if( iso ) {
             args.push("-c");
