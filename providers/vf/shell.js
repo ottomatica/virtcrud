@@ -19,7 +19,7 @@ class Shell {
             args.push(iso);
         }
 
-        return spawn(vfTool, args);
+        return spawn(vfTool, args, {detached: true});
     }
 }
 
