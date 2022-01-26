@@ -185,7 +185,7 @@ static VZVirtualMachineConfiguration *getVMConfig(unsigned int mem_size_mb,
     lladdr = [VZMACAddress randomLocallyAdministeredAddress];
 	[net_conf setMACAddress:lladdr];
 
-    NSLog(@"+++ Network Mac Address: %@\n", [lladdr string]);
+    NSLog(@"+++ Network Mac Address|%@\n", [lladdr string]);
 
     [conf setNetworkDevices:@[net_conf]];
 
