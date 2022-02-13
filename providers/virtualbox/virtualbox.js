@@ -173,7 +173,7 @@ class VirtualBox {
 
 
     async stop(name, force = false) {
-        await vbox({ stopCmd: true, vmname: name, syncs: [], verbose: false }).catch(e => e);
+        await vbox({ stopCmd: true, vmname: name, syncs: [], verbose: false, force }).catch(e => e);
     }
 
     async delete(name) {

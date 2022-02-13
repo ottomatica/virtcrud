@@ -422,9 +422,9 @@ class VBoxProvider {
         })
     }
 
-    async stop(name) {
+    async stop(name, force) {
         return new Promise(function (resolve, reject) {   
-            exec(`${VBexe} controlvm ${name} savestate`, (error, stdout, stderr) => {
+            exec(`${VBexe} controlvm ${name} ${force ? 'poweroff' : 'savestate'}`, (error, stdout, stderr) => {
                 if(error && stderr.indexOf('VBOX_E_OBJECT_NOT_FOUND') == -1) {
                     console.error(`exec error: stop`);
                     console.error(`=> ${error}, ${stderr}`);

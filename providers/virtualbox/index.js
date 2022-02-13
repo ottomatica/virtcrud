@@ -33,7 +33,7 @@ module.exports = async function (options = {}) {
     if(options.micro) {
         try {
             await provider.micro(options.vmname, options.cpus, options.mem, options.attach_iso || options.ovf, options.bridged, options.ip, options.ssh_port, path.join(__dirname,'config/resources/baker_rsa'), options.syncs, options.disk, options.verbose);
-       } catch (error) {
+        } catch (error) {
             console.error('=> exec error:', error);
         }
     }
@@ -71,7 +71,7 @@ module.exports = async function (options = {}) {
             console.error("Please provide --vmname <name> with --stop");
             process.exit(1);
         }        
-        console.log(await provider.stop(options.vmname));
+        console.log(await provider.stop(options.vmname, options.force));
     }
 
     if(options.infoCmd){
